@@ -23,4 +23,7 @@ public class BlacklistedToken {
 
     @Column(nullable = false, unique = true)
     private String token;  //JWT token string
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
 }
