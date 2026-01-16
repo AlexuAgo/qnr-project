@@ -11,4 +11,6 @@ public interface BlacklistedTokenRepository extends JpaRepository<BlacklistedTok
 
     // check if a token exists in the blacklist
     Optional<BlacklistedToken> findByToken(String token);
+
+    boolean existsByToken(String token);
 }

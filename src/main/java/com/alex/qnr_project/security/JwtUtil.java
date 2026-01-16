@@ -15,8 +15,6 @@ import java.security.Key;
 
 @Component
 @Slf4j
-
-
 public class JwtUtil {
 
     @Value("${jwt.secret}")
