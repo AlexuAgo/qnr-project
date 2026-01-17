@@ -49,6 +49,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             System.out.println("Token blacklisted? " + blacklisted);
 
             if (blacklisted) {
+                SecurityContextHolder.clearContext(); // used because sometimes the token that is blacklisted can still be used to execute requests
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 response.getWriter().write("Token is blacklisted");
                 return;
