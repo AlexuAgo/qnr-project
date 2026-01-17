@@ -33,10 +33,10 @@ public class JwtUtil {
     // generate token for a username
     public String generateToken(String username){
         return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
-                .signWith(key, SignatureAlgorithm.HS256)
+                .setSubject(username)               // store username as token subject
+                .setIssuedAt(new Date())            // token creation time
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))  // token epxiration time
+                .signWith(key, SignatureAlgorithm.HS256)        // sign token
                 .compact();
 
     }

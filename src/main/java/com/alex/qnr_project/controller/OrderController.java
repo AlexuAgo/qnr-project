@@ -4,20 +4,22 @@ import com.alex.qnr_project.entity.Order;
 import com.alex.qnr_project.entity.User;
 import com.alex.qnr_project.repository.OrderRepository;
 import com.alex.qnr_project.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
 
-    private final OrderRepository orderRepository;
-    private final UserRepository userRepository;
+    private final OrderRepository orderRepository;  // repo for order
+    private final UserRepository userRepository;    // repo to load user data from db
 
     public OrderController(OrderRepository orderRepository, UserRepository userRepository) {
         this.orderRepository = orderRepository;
@@ -30,9 +32,11 @@ public class OrderController {
     public Order createOrder(@RequestBody CreateOrderRequest request,
                              @AuthenticationPrincipal UserDetails userDetails) {
 
+        // load user
         User user = userRepository.findByUsername(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        // build order entity
         Order order = Order.builder()
                 .description(request.getDescription())
                 .status(request.getStatus())
@@ -40,25 +44,45 @@ public class OrderController {
                 .user(user)
                 .build();
 
+        //return the order
         return orderRepository.save(order);
     }
 
     // get all orders of a user
     @GetMapping
-    public List<Order> getOrders(@AuthenticationPrincipal UserDetails userDetails) {
+    public Page<Order> getOrders(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String status
+    ) {
+
+        //load user
         User user = userRepository.findByUsername(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        return orderRepository.findByUser(user);
+        //create pageable object
+        Pageable pageable = PageRequest.of(page, size);
+
+        // if status filter is provided, we paginate orders according to that status
+        if (status != null) {
+            return orderRepository.findByUserAndStatus(user, status, pageable);
+        }
+
+        //return all orders of the user only with pagination
+        return orderRepository.findByUser(user, pageable);
     }
 
     // get one specific order
     @GetMapping("/{id}")
     public ResponseEntity<Order> getOrder(@PathVariable Long id,
                                           @AuthenticationPrincipal UserDetails userDetails) {
+
+        // load user
         User user = userRepository.findByUsername(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        // fetch order and verify ownership
         return orderRepository.findById(id)
                 .filter(order -> order.getUser().getId() == user.getId())
                 .map(ResponseEntity::ok)
@@ -70,9 +94,12 @@ public class OrderController {
     public ResponseEntity<Order> updateOrder(@PathVariable Long id,
                                              @RequestBody UpdateOrderRequest request,
                                              @AuthenticationPrincipal UserDetails userDetails) {
+
+        // load user
         User user = userRepository.findByUsername(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        // fetch order and verify ownrership before updating
         return orderRepository.findById(id)
                 .filter(order -> order.getUser().getId() == user.getId())
                 .map(order -> {
@@ -87,9 +114,12 @@ public class OrderController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteOrder(@PathVariable Long id,
                                          @AuthenticationPrincipal UserDetails userDetails) {
+
+        // load user
         User user = userRepository.findByUsername(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        // fetch order and verify ownrership before deleting
         return orderRepository.findById(id)
                 .filter(order -> order.getUser().getId() == user.getId())
                 .map(order -> {
@@ -99,7 +129,7 @@ public class OrderController {
                 .orElse(ResponseEntity.status(403).build());
     }
 
-    // DTOs
+    // DTO for creating a new order
     public static class CreateOrderRequest {
         private String description;
         private String status;
@@ -110,6 +140,7 @@ public class OrderController {
         public void setStatus(String status) { this.status = status; }
     }
 
+    // DTO used for updating an existing order
     public static class UpdateOrderRequest {
         private String description;
         private String status;

@@ -30,27 +30,38 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // login
+    // login endpoint
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest request) {
+
+        // fetch user by username
         var userOpt = userRepository.findByUsername(request.getUsername());
 
+        //check if user exists and password matches
         if (userOpt.isEmpty() || !passwordEncoder.matches(request.getPassword(), userOpt.get().getPassword())) {
             return ResponseEntity.status(401).body("Invalid credentials");
         }
 
+        //generate token
         String token = jwtUtil.generateToken(userOpt.get().getUsername());
+
+        //return token in response
         return ResponseEntity.ok(new AuthResponse(token));
     }
 
-    // logout
+    // logout endpoint
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestHeader("Authorization")  String authHeader) {
+
+        //checks if authorization header exists and is valid
         if(authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.badRequest().body("No JWT token found");
         }
+
+        //extract token
         String token = authHeader.substring(7);
 
+        // create and save blaclisted token entity to mark token as invalid
         BlacklistedToken blacklisted = BlacklistedToken.builder()
                 .token(token)
                 .createdAt(LocalDateTime.now())

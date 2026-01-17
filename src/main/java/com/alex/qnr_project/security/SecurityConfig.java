@@ -29,7 +29,7 @@ public class SecurityConfig {
                 .map(user -> org.springframework.security.core.userdetails.User.builder()
                         .username(user.getUsername())
                         .password(user.getPassword())
-                        .roles(
+                        .roles(    //
                                 user.getRoles().stream()
                                         .map(role -> role.startsWith("ROLE_") ? role.substring(5) : role)
                                         .toArray(String[]::new)
@@ -39,7 +39,7 @@ public class SecurityConfig {
                         new UsernameNotFoundException("User not found"));
     }
 
-    // JWT filter bean
+    // JWT filter bean, extracts jwt from auth header, validates token, checks if token is blacklisted
     @Bean
     public JwtAuthFilter jwtAuthFilter(
             JwtUtil jwtUtil,
@@ -64,7 +64,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
+                .authorizeHttpRequests(auth -> auth         // permit only login and logout endpoints, all others require authentication
                         .requestMatchers("/api/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
