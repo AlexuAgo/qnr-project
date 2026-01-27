@@ -4,6 +4,7 @@ package com.alex.qnr_project.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,17 +22,20 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;                    //PK
 
-    @Column(nullable = false, name = "description")
+    @Column(nullable = false)
     private String description;         //Order description
 
-    @Column(nullable = false, name = "status")
+    @Column(nullable = false)
     private String status;              //Order status (completed,pending)
 
-    @Column(nullable = false, name = "createdAt")
+    @Column(nullable = false)
     private LocalDateTime createdAt;    //Timestamp at order creation
 
+    @Column(nullable = false)
+    private BigDecimal quantity;
+
     @ManyToOne
-    @JoinColumn(nullable = false, name = "user_id")
+    @JoinColumn(nullable = false)
     private User user;                  //the user who owns this order
 
 }

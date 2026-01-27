@@ -48,23 +48,23 @@ A test user is already created once you run the application in order to test the
 
 ### Authentication
 
-| Method | Endpoint           | Request Body                                 | Description                        |
-|--------|------------------|----------------------------------------------|------------------------------------|
-| POST   | `/api/auth/login` | `{ "username": "admin", "password": "123" }` | Login and get a JWT token           |
-| POST   | `/api/auth/logout` | None                                         | Logout and blacklist the token      |
+| Method | Endpoint           | Request Body                                      | Description                        |
+|--------|------------------|---------------------------------------------------|------------------------------------|
+| POST   | `/api/auth/login` | `{ "username": "admin", "password": "admin123" }` | Login and get a JWT token           |
+| POST   | `/api/auth/logout` | None                                              | Logout and blacklist the token      |
 
 ---
 
 ### Orders
 
-| Method | Endpoint                   | Request Body                                  | Description                                 |
-|--------|----------------------------|----------------------------------------------|---------------------------------------------|
-| POST   | `/api/orders`              | `{ "description": "New order", "status": "PENDING" }` | Create a new order                          |
-| GET    | `/api/orders`              | None                                         | Get all orders of logged-in user with pagination only (default page=0, size=10) |
-| GET    | `/api/orders?status=PENDING&page=0&size=10` | None                        | Get paginated orders filtered by status (optional query params: `status`, `page`, `size`) |
-| GET    | `/api/orders/{id}`         | None                                         | Get a specific order by ID                  |
-| PUT    | `/api/orders/{id}`         | `{ "description": "Updated desc", "status": "COMPLETED" }` | Update a specific order                     |
-| DELETE | `/api/orders/{id}`         | None                                         | Delete a specific order                     |
+| Method | Endpoint                   | Request Body                                                                | Description                                 |
+|--------|----------------------------|-----------------------------------------------------------------------------|---------------------------------------------|
+| POST   | `/api/orders`              | `{ "description": "New order", "status": "PENDING", "quantity" : 1000.00 }` | Create a new order                          |
+| GET    | `/api/orders`              | None                                                                        | Get all orders of logged-in user with pagination only (default page=0, size=10) |
+| GET    | `/api/orders?status=PENDING&page=0&size=10` | None                                                                        | Get paginated orders filtered by status (optional query params: `status`, `page`, `size`) |
+| GET    | `/api/orders/{id}`         | None                                                                        | Get a specific order by ID                  |
+| PUT    | `/api/orders/{id}`         | `{ "description": "Updated desc", "status": "COMPLETED" }`                  | Update a specific order                     |
+| DELETE | `/api/orders/{id}`         | None                                                                        | Delete a specific order                     |
 
 ---
 ## Notes
